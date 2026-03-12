@@ -1,0 +1,186 @@
+# Query: 
+# ContextLines: 1
+
+Aqui está um exemplo básico de um jogo de carro 2D usando HTML, CSS e JavaScript. Neste jogo, o carro pode ser movido para a esquerda e para a direita com as teclas de seta, enquanto tenta evitar os obstáculos que caem. Vou te dar o código completo para o HTML, CSS e JavaScript.
+
+```html
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Carro 2D</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #222;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #eee;
+            border: 2px solid #000;
+        }
+
+        #score {
+            color: white;
+            font-size: 20px;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+
+        #game-over {
+            color: red;
+            font-size: 50px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <div id="score">Pontuação: 0</div>
+    <div id="game-over">Game Over!</div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let score = 0;
+        let gameOver = false;
+
+        const carWidth = 50;
+        const carHeight = 80;
+        let carX = canvas.width / 2 - carWidth / 2;
+        let carY = canvas.height - carHeight - 10;
+
+        const carSpeed = 5;
+        const obstacleWidth = 50;
+        const obstacleHeight = 80;
+        let obstacles = [];
+
+        let leftArrow = false;
+        let rightArrow = false;
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowLeft") {
+                leftArrow = true;
+            } else if (event.key === "ArrowRight") {
+                rightArrow = true;
+            }
+        });
+
+        document.addEventListener("keyup", (event) => {
+            if (event.key === "ArrowLeft") {
+                leftArrow = false;
+            } else if (event.key === "ArrowRight") {
+                rightArrow = false;
+            }
+        });
+
+        function moveCar() {
+            if (leftArrow && carX > 0) {
+                carX -= carSpeed;
+            } else if (rightArrow && carX < canvas.width - carWidth) {
+                carX += carSpeed;
+            }
+        }
+
+        function createObstacle() {
+            if (Math.random() < 0.02) {
+                let x = Math.random() * (canvas.width - obstacleWidth);
+                obstacles.push({ x: x, y: -obstacleHeight });
+            }
+        }
+
+        function moveObstacles() {
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].y += 3;
+                if (obstacles[i].y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    score++;
+                    document.getElementById("score").textContent = "Pontuação: " + score;
+                }
+            }
+        }
+
+        function checkCollision() {
+            for (let i = 0; i < obstacles.length; i++) {
+                if (
+                    carX < obstacles[i].x + obstacleWidth &&
+                    carX + carWidth > obstacles[i].x &&
+                    carY < obstacles[i].y + obstacleHeight &&
+                    carY + carHeight > obstacles[i].y
+                ) {
+                    gameOver = true;
+                    document.getElementById("game-over").style.display = "block";
+                    break;
+                }
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Desenhar o carro
+            ctx.fillStyle = "blue";
+            ctx.fillRect(carX, carY, carWidth, carHeight);
+
+            // Desenhar os obstáculos
+            ctx.fillStyle = "red";
+            for (let i = 0; i < obstacles.length; i++) {
+                ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacleWidth, obstacleHeight);
+            }
+
+            // Verificar se o jogo acabou
+            if (gameOver) {
+                return;
+            }
+
+            moveCar();
+            createObstacle();
+            moveObstacles();
+            checkCollision();
+
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    </script>
+
+</body>
+</html>
+```
+
+### Explicação do Código:
+
+1. **HTML**:
+
+   * Usamos uma `<canvas>` para criar a área de jogo onde o carro e os obstáculos são desenhados.
+   * Também temos dois elementos `<div>` para exibir a pontuação e a mensagem de "Game Over".
+
+2. **CSS**:
+
+   * O estilo do canvas é configurado para dar um fundo cinza e uma borda ao redor.
+   * A pontuação é exibida no canto superior esquerdo e o "Game Over" no centro da tela.
+
+3. **JavaScript**:
+
+   * **Movimento do carro**: O carro pode ser movido para a esquerda e para a direita com as setas.
+   * **Obstáculos**: Obstáculos caem de cima para baixo de forma aleatória. O jogador deve evitar esses obstáculos.
+   * **Detecção de colisão**: Se o carro colidir com um obstáculo, o jogo termina e a mensagem de "Game Over" é exibida.
+
+### Como jogar:
+
+* Use as teclas de seta para mover o carro para a esquerda e direita.
+* Tente evitar os obstáculos vermelhos que caem de cima.
+* A pontuação aumenta sempre que você evita um obstáculo.
+
+Esse é um exemplo bem simples, mas você pode expandir o jogo com mais recursos, como mais tipos de obstáculos, efeitos sonoros, melhorias na física do carro e gráficos mais detalhados.
