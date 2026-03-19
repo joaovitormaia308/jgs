@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Busca de Veículos - Ficha Técnica</title>
+    <title>WikiCar - Ficha Técnica</title>
     <style>
-        /* CSS - Estilização do Site */
+        :root {
+            --primary: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
+            background-color: #1a1a1a;
+            color: var(--light);
             margin: 0;
             display: flex;
             flex-direction: column;
@@ -18,181 +24,175 @@
 
         .container {
             width: 100%;
-            max-width: 600px;
-            background: white;
+            max-width: 800px;
+            background: #252525;
             padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        h1 { color: #333; text-align: center; }
+        h1 { text-align: center; color: var(--primary); }
 
         .search-box {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         input {
             flex: 1;
             padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
+            border-radius: 5px;
+            border: none;
             font-size: 16px;
-            outline: none;
         }
 
-        input:focus { border-color: #007bff; }
+        button {
+            padding: 12px 25px;
+            background: var(--primary);
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        button:hover { background: #c0392b; }
 
         .result-card {
-            margin-top: 20px;
-            padding: 20px;
-            border-left: 5px solid #007bff;
-            background: #f9f9f9;
-            display: none; /* Escondido por padrão */
+            display: none;
+            border-top: 2px solid var(--primary);
+            padding-top: 20px;
+            animation: fadeIn 0.5s;
         }
 
-        .specs {
+        .specs-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
         }
 
         .spec-item {
-            font-size: 14px;
-            color: #555;
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
         }
 
-        .spec-item b { color: #222; }
-
-        .versions {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
+        .spec-item span {
+            display: block;
+            font-size: 0.9em;
+            color: #bbb;
         }
 
-        .tag {
-            display: inline-block;
-            background: #e1f0ff;
-            color: #007bff;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin: 5px 5px 0 0;
-            font-weight: bold;
+        .spec-item strong {
+            font-size: 1.2em;
+            color: var(--primary);
         }
 
-        .error { color: #dc3545; text-align: center; margin-top: 10px; display: none; }
+        .special-versions {
+            margin-top: 25px;
+            background: #2d2d2d;
+            padding: 15px;
+            border-left: 4px solid gold;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Pesquisa de Veículos</h1>
-    
+    <h1>WikiCar Expert</h1>
     <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Ex: Corolla, Civic, Onix...">
+        <input type="text" id="carInput" placeholder="Ex: Supra, Mustang, Civic...">
+        <button onclick="buscarCarro()">Pesquisar</button>
     </div>
 
-    <div id="errorMessage" class="error">Veículo não encontrado. Tente outro modelo!</div>
-
-    <div id="resultCard" class="result-card">
-        <h2 id="carName">Nome do Modelo</h2>
-        <p id="carBrand" style="color: #888; margin-top: -10px;"></p>
-        
-        <div class="specs">
-            <div class="spec-item"><b>Motor:</b> <span id="specMotor"></span></div>
-            <div class="spec-item"><b>Potência:</b> <span id="specPotencia"></span></div>
-            <div class="spec-item"><b>Torque:</b> <span id="specTorque"></span></div>
-            <div class="spec-item"><b>Câmbio:</b> <span id="specCambio"></span></div>
+    <div id="result" class="result-card">
+        <h2 id="carTitle">Modelo do Carro</h2>
+        <div class="specs-grid">
+            <div class="spec-item"><span>Velocidade Máx.</span><strong id="vMax">-</strong></div>
+            <div class="spec-item"><span>Torque</span><strong id="torque">-</strong></div>
+            <div class="spec-item"><span>Potência (HP)</span><strong id="hp">-</strong></div>
+            <div class="spec-item"><span>0-100 km/h</span><strong id="accel">-</strong></div>
         </div>
 
-        <div class="versions">
-            <b>Versões Disponíveis:</b>
-            <div id="versionList"></div>
+        <div class="special-versions">
+            <h3>🚀 Versões Especiais</h3>
+            <p id="specialDesc">Dados sobre edições limitadas e performance avançada.</p>
         </div>
     </div>
 </div>
 
 <script>
-    // JavaScript - Lógica e Dados
-    const veiculos = [
-        {
-            modelo: "Corolla",
-            marca: "Toyota",
-            motor: "2.0 Flex / 1.8 Híbrido",
-            potencia: "175 cv",
-            torque: "21,3 kgfm",
-            cambio: "CVT de 10 marchas",
-            versoes: ["GLi", "XEi", "Altis Premium", "GR-Sport"]
+    // Banco de dados simulado (Exemplo de como estruturar)
+    const carDatabase = {
+        "supra": {
+            nome: "Toyota Supra A90 (MK5)",
+            vMax: "250 km/h",
+            torque: "500 Nm",
+            hp: "382 hp",
+            accel: "4.1s",
+            especial: "Versão GRMN: Ajustes de pista, redução de peso e suspensão competitiva."
         },
-        {
-            modelo: "Civic",
-            marca: "Honda",
-            motor: "2.0 Híbrido e:HEV",
-            potencia: "184 cv",
-            torque: "32,1 kgfm",
-            cambio: "e-CVT",
-            versoes: ["Touring"]
+        "mustang": {
+            nome: "Ford Mustang GT",
+            vMax: "250 km/h",
+            torque: "556 Nm",
+            hp: "450 hp",
+            accel: "4.3s",
+            especial: "Shelby GT500: 760 hp, motor V8 Supercharged e aerodinâmica de fibra de carbono."
         },
-        {
-            modelo: "Onix",
-            marca: "Chevrolet",
-            motor: "1.0 Turbo",
-            potencia: "116 cv",
-            torque: "16,8 kgfm",
-            cambio: "Automático 6 marchas",
-            versoes: ["LT", "LTZ", "Premier", "RS"]
+        "civic": {
+            nome: "Honda Civic Type R",
+            vMax: "272 km/h",
+            torque: "400 Nm",
+            hp: "315 hp",
+            accel: "5.4s",
+            especial: "Limited Edition: Cor Phoenix Yellow e rodas BBS forjadas mais leves."
+        },
+        "porsche 911": {
+            nome: "Porsche 911 Carrera S",
+            vMax: "308 km/h",
+            torque: "530 Nm",
+            hp: "450 hp",
+            accel: "3.5s",
+            especial: "GT3 RS: Focado em pista, motor aspirado e asa traseira DRS."
         }
-    ];
+    };
 
-    const searchInput = document.getElementById('searchInput');
-    const resultCard = document.getElementById('resultCard');
-    const errorMessage = document.getElementById('errorMessage');
-
-    searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
+    function buscarCarro() {
+        const input = document.getElementById('carInput').value.toLowerCase();
+        const resultDiv = document.getElementById('result');
         
-        if (query.length < 2) {
-            resultCard.style.display = 'none';
-            errorMessage.style.display = 'none';
-            return;
-        }
+        // Procura no "banco de dados"
+        const carro = carDatabase[input] || Object.values(carDatabase).find(c => c.nome.toLowerCase().includes(input));
 
-        const carroEncontrado = veiculos.find(v => 
-            v.modelo.toLowerCase().includes(query) || 
-            v.marca.toLowerCase().includes(query)
-        );
-
-        if (carroEncontrado) {
-            exibirCarro(carroEncontrado);
-            resultCard.style.display = 'block';
-            errorMessage.style.display = 'none';
+        if (carro) {
+            document.getElementById('carTitle').innerText = carro.nome;
+            document.getElementById('vMax').innerText = carro.vMax;
+            document.getElementById('torque').innerText = carro.torque;
+            document.getElementById('hp').innerText = carro.hp;
+            document.getElementById('accel').innerText = carro.accel;
+            document.getElementById('specialDesc').innerText = carro.especial;
+            
+            resultDiv.style.display = 'block';
         } else {
-            resultCard.style.display = 'none';
-            errorMessage.style.display = 'block';
+            alert("Carro não encontrado no banco de dados demonstrativo. Tente 'Supra', 'Mustang' ou 'Civic'.");
+            resultDiv.style.display = 'none';
         }
-    });
-
-    function exibirCarro(carro) {
-        document.getElementById('carName').innerText = carro.modelo;
-        document.getElementById('carBrand').innerText = carro.marca;
-        document.getElementById('specMotor').innerText = carro.motor;
-        document.getElementById('specPotencia').innerText = carro.potencia;
-        document.getElementById('specTorque').innerText = carro.torque;
-        document.getElementById('specCambio').innerText = carro.cambio;
-
-        const versionList = document.getElementById('versionList');
-        versionList.innerHTML = ''; // Limpa versões anteriores
-        
-        carro.versoes.forEach(versao => {
-            const span = document.createElement('span');
-            span.className = 'tag';
-            span.innerText = versao;
-            versionList.appendChild(span);
-        });
     }
+
+    // Permitir busca ao apertar Enter
+    document.getElementById('carInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') buscarCarro();
+    });
 </script>
 
 </body>
