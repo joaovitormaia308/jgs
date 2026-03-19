@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busca de Veículos - Ficha Técnica</title>
+    <style>
+        /* CSS - Estilização do Site */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 { color: #333; text-align: center; }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus { border-color: #007bff; }
+
+        .result-card {
+            margin-top: 20px;
+            padding: 20px;
+            border-left: 5px solid #007bff;
+            background: #f9f9f9;
+            display: none; /* Escondido por padrão */
+        }
+
+        .specs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .spec-item {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .spec-item b { color: #222; }
+
+        .versions {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #e1f0ff;
+            color: #007bff;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 5px 5px 0 0;
+            font-weight: bold;
+        }
+
+        .error { color: #dc3545; text-align: center; margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Pesquisa de Veículos</h1>
+    
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Ex: Corolla, Civic, Onix...">
+    </div>
+
+    <div id="errorMessage" class="error">Veículo não encontrado. Tente outro modelo!</div>
+
+    <div id="resultCard" class="result-card">
+        <h2 id="carName">Nome do Modelo</h2>
+        <p id="carBrand" style="color: #888; margin-top: -10px;"></p>
+        
+        <div class="specs">
+            <div class="spec-item"><b>Motor:</b> <span id="specMotor"></span></div>
+            <div class="spec-item"><b>Potência:</b> <span id="specPotencia"></span></div>
+            <div class="spec-item"><b>Torque:</b> <span id="specTorque"></span></div>
+            <div class="spec-item"><b>Câmbio:</b> <span id="specCambio"></span></div>
+        </div>
+
+        <div class="versions">
+            <b>Versões Disponíveis:</b>
+            <div id="versionList"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JavaScript - Lógica e Dados
+    const veiculos = [
+        {
+            modelo: "Corolla",
+            marca: "Toyota",
+            motor: "2.0 Flex / 1.8 Híbrido",
+            potencia: "175 cv",
+            torque: "21,3 kgfm",
+            cambio: "CVT de 10 marchas",
+            versoes: ["GLi", "XEi", "Altis Premium", "GR-Sport"]
+        },
+        {
+            modelo: "Civic",
+            marca: "Honda",
+            motor: "2.0 Híbrido e:HEV",
+            potencia: "184 cv",
+            torque: "32,1 kgfm",
+            cambio: "e-CVT",
+            versoes: ["Touring"]
+        },
+        {
+            modelo: "Onix",
+            marca: "Chevrolet",
+            motor: "1.0 Turbo",
+            potencia: "116 cv",
+            torque: "16,8 kgfm",
+            cambio: "Automático 6 marchas",
+            versoes: ["LT", "LTZ", "Premier", "RS"]
+        }
+    ];
+
+    const searchInput = document.getElementById('searchInput');
+    const resultCard = document.getElementById('resultCard');
+    const errorMessage = document.getElementById('errorMessage');
+
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        
+        if (query.length < 2) {
+            resultCard.style.display = 'none';
+            errorMessage.style.display = 'none';
+            return;
+        }
+
+        const carroEncontrado = veiculos.find(v => 
+            v.modelo.toLowerCase().includes(query) || 
+            v.marca.toLowerCase().includes(query)
+        );
+
+        if (carroEncontrado) {
+            exibirCarro(carroEncontrado);
+            resultCard.style.display = 'block';
+            errorMessage.style.display = 'none';
+        } else {
+            resultCard.style.display = 'none';
+            errorMessage.style.display = 'block';
+        }
+    });
+
+    function exibirCarro(carro) {
+        document.getElementById('carName').innerText = carro.modelo;
+        document.getElementById('carBrand').innerText = carro.marca;
+        document.getElementById('specMotor').innerText = carro.motor;
+        document.getElementById('specPotencia').innerText = carro.potencia;
+        document.getElementById('specTorque').innerText = carro.torque;
+        document.getElementById('specCambio').innerText = carro.cambio;
+
+        const versionList = document.getElementById('versionList');
+        versionList.innerHTML = ''; // Limpa versões anteriores
+        
+        carro.versoes.forEach(versao => {
+            const span = document.createElement('span');
+            span.className = 'tag';
+            span.innerText = versao;
+            versionList.appendChild(span);
+        });
+    }
+</script>
+
+</body>
+</html>
