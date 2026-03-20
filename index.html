@@ -3,35 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WikiCar - Ficha Técnica</title>
+    <title>AutoBrasil - Enciclopédia de Carros</title>
     <style>
         :root {
-            --primary: #e74c3c;
-            --dark: #2c3e50;
+            --primary: #2c3e50;
+            --accent: #e74c3c;
             --light: #ecf0f1;
+            --dark: #1a1a1a;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a1a1a;
-            color: var(--light);
+            background-color: #f4f4f4;
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
+            color: var(--dark);
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
         .container {
-            width: 100%;
-            max-width: 800px;
-            background: #252525;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 0 20px;
         }
-
-        h1 { text-align: center; color: var(--primary); }
 
         .search-box {
             display: flex;
@@ -41,30 +41,40 @@
 
         input {
             flex: 1;
-            padding: 12px;
-            border-radius: 5px;
-            border: none;
-            font-size: 16px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
         }
 
-        button {
-            padding: 12px 25px;
+        input:focus {
+            border-color: var(--accent);
+        }
+
+        .car-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            display: none; /* Escondido por padrão */
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .car-header {
             background: var(--primary);
-            border: none;
             color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
+            padding: 20px;
         }
 
-        button:hover { background: #c0392b; }
-
-        .result-card {
-            display: none;
-            border-top: 2px solid var(--primary);
-            padding-top: 20px;
-            animation: fadeIn 0.5s;
+        .car-info {
+            padding: 20px;
         }
 
         .specs-grid {
@@ -72,127 +82,195 @@
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
             margin-top: 20px;
-        }
-
-        .spec-item {
-            background: #333;
+            background: #f9f9f9;
             padding: 15px;
             border-radius: 8px;
-            text-align: center;
         }
 
-        .spec-item span {
+        .spec-item b {
             display: block;
-            font-size: 0.9em;
-            color: #bbb;
+            color: var(--accent);
+            font-size: 0.8rem;
+            text-transform: uppercase;
         }
 
-        .spec-item strong {
-            font-size: 1.2em;
-            color: var(--primary);
+        .versions-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
 
-        .special-versions {
-            margin-top: 25px;
-            background: #2d2d2d;
-            padding: 15px;
-            border-left: 4px solid gold;
+        .versions-table th, .versions-table td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .versions-table th {
+            background-color: #eee;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #666;
+            margin-top: 50px;
+        }
+
+        .tag {
+            background: var(--accent);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-left: 10px;
         }
     </style>
 </head>
 <body>
 
+<header>
+    <h1>🚗 Pesquisa de Carros Brasileiros</h1>
+    <p>Modelos produzidos de 1980 a 2025</p>
+</header>
+
 <div class="container">
-    <h1>WikiCar Expert</h1>
     <div class="search-box">
-        <input type="text" id="carInput" placeholder="Ex: Supra, Mustang, Civic...">
-        <button onclick="buscarCarro()">Pesquisar</button>
+        <input type="text" id="searchInput" placeholder="Digite o nome do carro (ex: Gol, Opala, Onix)..." onkeyup="searchCar()">
     </div>
 
-    <div id="result" class="result-card">
-        <h2 id="carTitle">Modelo do Carro</h2>
-        <div class="specs-grid">
-            <div class="spec-item"><span>Velocidade Máx.</span><strong id="vMax">-</strong></div>
-            <div class="spec-item"><span>Torque</span><strong id="torque">-</strong></div>
-            <div class="spec-item"><span>Potência (HP)</span><strong id="hp">-</strong></div>
-            <div class="spec-item"><span>0-100 km/h</span><strong id="accel">-</strong></div>
-        </div>
-
-        <div class="special-versions">
-            <h3>🚀 Versões Especiais</h3>
-            <p id="specialDesc">Dados sobre edições limitadas e performance avançada.</p>
-        </div>
+    <div id="resultsArea">
+        <div class="no-results">Digite o nome de um veículo para ver as especificações.</div>
     </div>
 </div>
 
 <script>
-    // Banco de dados simulado (Exemplo de como estruturar)
-    const carDatabase = {
-        "supra": {
-            nome: "Toyota Supra A90 (MK5)",
-            vMax: "250 km/h",
-            torque: "500 Nm",
-            hp: "382 hp",
-            accel: "4.1s",
-            especial: "Versão GRMN: Ajustes de pista, redução de peso e suspensão competitiva."
+    // Base de Dados de Exemplo (Expansível)
+    const carros = [
+        {
+            nome: "Volkswagen Gol",
+            periodo: "1980 - 2023",
+            descricao: "O carro mais vendido da história do Brasil, ícone de robustez e confiabilidade.",
+            especificacoes: {
+                origem: "Brasil",
+                carroceria: "Hatchback",
+                motores: "1.0, 1.3 (Ar), 1.6, 1.8, 2.0 (GTI)"
+            },
+            versoes: [
+                { nome: "BX / L", nivel: "Básico", motor: "1.3 Ar / 1.6 Ar" },
+                { nome: "CL / GL", nivel: "Intermediário", motor: "1.6 / 1.8 AP" },
+                { nome: "GTI", nivel: "Luxo / Esportivo", motor: "2.0 Injeção" }
+            ]
         },
-        "mustang": {
-            nome: "Ford Mustang GT",
-            vMax: "250 km/h",
-            torque: "556 Nm",
-            hp: "450 hp",
-            accel: "4.3s",
-            especial: "Shelby GT500: 760 hp, motor V8 Supercharged e aerodinâmica de fibra de carbono."
+        {
+            nome: "Chevrolet Opala",
+            periodo: "1968 - 1992",
+            descricao: "Clássico absoluto do mercado brasileiro, conhecido pelo conforto e potência dos motores 6 cilindros.",
+            especificacoes: {
+                origem: "Brasil (Tecnologia Opel)",
+                carroceria: "Sedã / Cupê",
+                motores: "2.5 (151) e 4.1 (250)"
+            },
+            versoes: [
+                { nome: "Especial", nivel: "Básico", motor: "4 cil" },
+                { nome: "Comodoro", nivel: "Intermediário/Luxo", motor: "4 ou 6 cil" },
+                { nome: "Diplomata SE", nivel: "Luxo Máximo", motor: "6 cil 4.1" }
+            ]
         },
-        "civic": {
-            nome: "Honda Civic Type R",
-            vMax: "272 km/h",
-            torque: "400 Nm",
-            hp: "315 hp",
-            accel: "5.4s",
-            especial: "Limited Edition: Cor Phoenix Yellow e rodas BBS forjadas mais leves."
+        {
+            nome: "Fiat Uno",
+            periodo: "1984 - 2021",
+            descricao: "Revolucionou o mercado com o conceito 'pequeno por fora, grande por dentro'.",
+            especificacoes: {
+                origem: "Brasil / Itália",
+                carroceria: "Hatchback",
+                motores: "1.0 (Mille), 1.3, 1.5, 1.4 Turbo"
+            },
+            versoes: [
+                { nome: "Mille", nivel: "Popular / Entrada", motor: "1.0" },
+                { nome: "CS / 1.5R", nivel: "Intermediário", motor: "1.5" },
+                { nome: "Turbo i.e.", nivel: "Luxo / Performance", motor: "1.4 Turbo" }
+            ]
         },
-        "porsche 911": {
-            nome: "Porsche 911 Carrera S",
-            vMax: "308 km/h",
-            torque: "530 Nm",
-            hp: "450 hp",
-            accel: "3.5s",
-            especial: "GT3 RS: Focado em pista, motor aspirado e asa traseira DRS."
+        {
+            nome: "Chevrolet Onix",
+            periodo: "2012 - 2025",
+            descricao: "Líder de vendas da era moderna, focado em conectividade e segurança.",
+            especificacoes: {
+                origem: "Brasil",
+                carroceria: "Hatchback",
+                motores: "1.0, 1.4, 1.0 Turbo"
+            },
+            versoes: [
+                { nome: "Joy", nivel: "Básico", motor: "1.0" },
+                { nome: "LTZ", nivel: "Intermediário", motor: "1.0 Turbo" },
+                { nome: "Premier", nivel: "Luxo / Topo", motor: "1.0 Turbo" }
+            ]
         }
-    };
+    ];
 
-    function buscarCarro() {
-        const input = document.getElementById('carInput').value.toLowerCase();
-        const resultDiv = document.getElementById('result');
+    function searchCar() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const resultsArea = document.getElementById('resultsArea');
         
-        // Procura no "banco de dados"
-        const carro = carDatabase[input] || Object.values(carDatabase).find(c => c.nome.toLowerCase().includes(input));
+        if (input.length < 2) {
+            resultsArea.innerHTML = '<div class="no-results">Digite pelo menos 2 letras...</div>';
+            return;
+        }
 
-        if (carro) {
-            document.getElementById('carTitle').innerText = carro.nome;
-            document.getElementById('vMax').innerText = carro.vMax;
-            document.getElementById('torque').innerText = carro.torque;
-            document.getElementById('hp').innerText = carro.hp;
-            document.getElementById('accel').innerText = carro.accel;
-            document.getElementById('specialDesc').innerText = carro.especial;
-            
-            resultDiv.style.display = 'block';
+        const filtro = carros.filter(c => c.nome.toLowerCase().includes(input));
+
+        if (filtro.length > 0) {
+            resultsArea.innerHTML = '';
+            filtro.forEach(carro => {
+                const card = document.createElement('div');
+                card.className = 'car-card';
+                card.style.display = 'block';
+
+                let versoesHTML = '';
+                carro.versoes.forEach(v => {
+                    versoesHTML += `
+                        <tr>
+                            <td>${v.nome}</td>
+                            <td>${v.motor}</td>
+                            <td><span class="tag">${v.nivel}</span></td>
+                        </tr>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="car-header">
+                        <h2>${carro.nome} <small>(${carro.periodo})</small></h2>
+                    </div>
+                    <div class="car-info">
+                        <p>${carro.descricao}</p>
+                        
+                        <div class="specs-grid">
+                            <div class="spec-item"><b>Origem</b>${carro.especificacoes.origem}</div>
+                            <div class="spec-item"><b>Carroceria</b>${carro.especificacoes.carroceria}</div>
+                            <div class="spec-item"><b>Motores principais</b>${carro.especificacoes.motores}</div>
+                        </div>
+
+                        <h3>Versões e Acabamentos</h3>
+                        <table class="versions-table">
+                            <thead>
+                                <tr>
+                                    <th>Versão</th>
+                                    <th>Motorização</th>
+                                    <th>Categoria</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${versoesHTML}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                resultsArea.appendChild(card);
+            });
         } else {
-            alert("Carro não encontrado no banco de dados demonstrativo. Tente 'Supra', 'Mustang' ou 'Civic'.");
-            resultDiv.style.display = 'none';
+            resultsArea.innerHTML = '<div class="no-results">Nenhum veículo encontrado com esse nome.</div>';
         }
     }
-
-    // Permitir busca ao apertar Enter
-    document.getElementById('carInput').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') buscarCarro();
-    });
 </script>
 
 </body>
